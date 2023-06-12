@@ -10,10 +10,11 @@ import { connect, set } from 'mongoose';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
-import { dbConnection } from '@databases';
 import { Routes } from '@interfaces/routes.interface';
 import { ErrorMiddleware } from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import { dbConnection } from '@/database/index';
+import crawlService from './services/crawl.service';
 
 class App {
   public app: express.Application;
@@ -45,12 +46,13 @@ class App {
     return this.app;
   }
 
-  private connectToDatabase() {
+  private async connectToDatabase() {
     if (this.env !== 'production') {
       set('debug', true);
     }
 
-    connect(dbConnection);
+    await connect(dbConnection.url, dbConnection.options);
+    crawlService.init();
   }
 
   private initializeMiddlewares() {
@@ -62,6 +64,7 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+    process.on('uncaughtException', (err) => logger.error(err));
   }
 
   private initializeRoutes(routes: Routes[]) {
