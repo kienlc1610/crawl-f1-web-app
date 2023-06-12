@@ -31,8 +31,6 @@ class App {
     this.initializeRoutes(routes);
     this.initializeSwagger();
     this.initializeErrorHandling();
-
-    crawlService.init();
   }
 
   public listen() {
@@ -53,8 +51,8 @@ class App {
       set('debug', true);
     }
 
-    console.log(dbConnection)
     await connect(dbConnection.url, dbConnection.options);
+    crawlService.init();
   }
 
   private initializeMiddlewares() {
