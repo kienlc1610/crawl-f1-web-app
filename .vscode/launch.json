@@ -2,16 +2,35 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node-terminal",
-            "request": "launch",
             "name": "Dev typescript-express-starter",
-            "command": "npm run dev"
+            "sourceMaps": true,
+            "cwd": "${workspaceRoot}",
+            "request": "launch",
+            "runtimeArgs": [
+                "run-script",
+                "dev"
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "outputCapture": "std"
         },
         {
-            "type": "node-terminal",
-            "request": "launch",
             "name": "Start typescript-express-starter",
-            "command": "npm run start"
+            "sourceMaps": true,
+            "cwd": "${workspaceRoot}",
+            "request": "launch",
+            "runtimeArgs": [
+                "run-script",
+                "start"
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
         },
         {
             "type": "node-terminal",

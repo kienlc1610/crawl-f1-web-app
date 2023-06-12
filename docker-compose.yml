@@ -7,28 +7,28 @@ services:
     ports:
       - 27017:27017
     environment:
-      - MONGO_INITDB_DATABASE=admin
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=admin
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_ROOT_DATABASE: mongodb
     volumes:
-      # seeding scripts
-      - ./db_data/mongo-entrypoint:/docker-entrypoint-initdb.d
       # named volumes
       - ./db_data/mongodb:/data/db
-      - ./db_data/mongoconfig:/data/configdb
-    networks:
-      - myLocalNet
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
   redis:
     image: redis:7-alpine
     volumes:
       - ./db_data:/data/redis
-    command: redis-server --save 20 1 --loglevel warning --requirepass ABC@123
+    command: redis-server --save 20 1 --loglevel warning --requirepass 123456
     ports:
       - '6379:6379'
     networks:
       - myLocalNet
 volumes:
   db_data:
+    driver: local
 networks:
   myLocalNet:
     driver: bridge
+  services:
+    name: ${MONGO_NETWORK:-mongodb.network}
+  
