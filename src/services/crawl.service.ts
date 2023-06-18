@@ -1,9 +1,9 @@
-import { REDIS_AUTH_PASS, REDIS_HOST, REDIS_PORT, ioRedisConnStr } from '@/config';
+import { ioRedisConnStr } from '@/config';
 import { RaceResult, RaceResultModel } from '@/models/race-result.model';
 import { ResultFilterConditionModel } from '@/models/result-filter-condition.model';
 import { logger } from '@/utils/logger';
 import { Job, Queue, Worker } from 'bullmq';
-import { classToPlain, instanceToPlain, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import IORedis from 'ioredis';
 import puppeteer, { ElementFor, ElementHandle } from 'puppeteer';
 
@@ -36,6 +36,7 @@ class CrawlService {
   }
 
   async crawl() {
+    const countDocs = await ResultFilterConditionModel.countDocuments();
     const browser = await puppeteer.launch({ headless: 'new' });
     const page = await browser.newPage();
 
@@ -55,14 +56,12 @@ class CrawlService {
     }
 
     await browser.close();
-
-    const countDocs = await ResultFilterConditionModel.countDocuments();
     if (countDocs === 0) {
       await new ResultFilterConditionModel(obj).save();
     }
 
     // Get 10 years
-    for await (const year of (await ResultFilterConditionModel.findOne()).years.slice(0, 9)) {
+    for await (const year of (await ResultFilterConditionModel.findOne()).years.slice(0, 19)) {
       const existedYear = await this.redisCache.hget('crawledYears', String(year));
       if (!Boolean(existedYear)) {
         await this.crawlResultsByYear(year);
@@ -97,6 +96,7 @@ class CrawlService {
       const model = plainToInstance(RaceResult, builtObj);
       await new RaceResultModel({
         ...model,
+        year,
       }).save();
     }
 
