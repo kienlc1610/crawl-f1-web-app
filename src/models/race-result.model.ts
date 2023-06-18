@@ -42,6 +42,8 @@ export class RaceResult {
     })
     @prop()
     public time: string;
+    @prop()
+    public year: number;
 }
 
 export const RaceResultModel = getModelForClass(RaceResult);
